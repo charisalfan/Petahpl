@@ -99,41 +99,61 @@ fetch('data/index.json')
   });
 
 // ============================================================
-//  Interaction: select a feature
+//  Interaction: select a feature (UPDATED)
 // ============================================================
 function selectFeature(feature, layer) {
   if (selectedLayer && selectedLayer.setStyle) {
-    selectedLayer.setStyle({ weight: 2 });
+    selectedLayer.setStyle({ weight: 2 }); // Reset previous layer style
   }
   selectedLayer = layer;
-  if (layer.setStyle) layer.setStyle({ weight: 4 });
+  if (layer.setStyle) layer.setStyle({ weight: 4 }); // Highlight new layer
 
   const p = feature.properties || {};
   const details = document.getElementById('details');
+  const panel = document.getElementById('info-panel');
   if (!details) return;
 
+  // Build the HTML for the panel
   details.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="margin: 0; font-size: 16px;">${escapeHtml(p.title || 'Area Details')}</h3>
+      <button id="close-panel" style="cursor: pointer; border: none; background: transparent; font-size: 18px; font-weight: bold;">✕</button>
+    </div>
+
+    ${p.description ? `<div class="meta-block">
+      <div class="meta-label">Description</div>
+      <div class="meta-value">${escapeHtml(p.description)}</div>
+    </div>` : ''}
+
     <div class="meta-block">
-      <div class="meta-label">UID</div>
+      <div class="meta-label">ID</div>
       <div class="meta-value">${escapeHtml(p._uid || '—')}</div>
     </div>
-    ${p.title ? `<div class="meta-block">
-      <div class="meta-label">Title</div>
-      <div class="meta-value">${escapeHtml(p.title)}</div>
-    </div>` : ''}
+    
     <div class="meta-block">
       <div class="meta-label">Geometry</div>
       <div class="meta-value">${feature.geometry ? feature.geometry.type : 'none'}</div>
     </div>
+    
     <div class="meta-block">
       <div class="meta-label">Source file</div>
       <div class="meta-value">${escapeHtml(p._sourceFile || '—')}</div>
     </div>
   `;
+
+  // Open the panel
+  panel.classList.add('open');
+
+  // Make the Close button work
+  document.getElementById('close-panel').addEventListener('click', () => {
+    panel.classList.remove('open');
+    if (selectedLayer) selectedLayer.setStyle({ weight: 2 }); // Remove highlight
+    selectedLayer = null;
+  });
 }
 
 // ============================================================
-//  Render the searchable list in the side panel
+//  Render the searchable list in the side panel (UPDATED)
 // ============================================================
 function renderList(filterText = '') {
   const results = document.getElementById('results');
