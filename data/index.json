@@ -1,0 +1,15 @@
+{
+  "files": [
+    "data/aceh.geojson",
+    "data/lampung.geojson",
+    "data/bengkulu.geojson",
+	"data/kalbar.geojson",
+	"data/kalteng.geojson",
+	"data/sulbar.geojson",
+	"data/gorontalo.geojson",
+	"data/sultra.geojson",
+	"data/ntb.geojson",
+	"data/ntt.geojson",
+	"data/papsel.geojson"
+  ]
+}
