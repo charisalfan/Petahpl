@@ -113,31 +113,31 @@ function selectFeature(feature, layer) {
   const panel = document.getElementById('info-panel');
   if (!details) return;
 
-  // Build the HTML for the panel
+    // Build the HTML for the panel
   details.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-      <h3 style="margin: 0; font-size: 16px;">${escapeHtml(p.title || 'Area Details')}</h3>
+      <h3 style="margin: 0; font-size: 16px; color: #333;">${escapeHtml(p.title || 'Area Details')}</h3>
       <button id="close-panel" style="cursor: pointer; border: none; background: transparent; font-size: 18px; font-weight: bold;">✕</button>
     </div>
 
-    ${p.description ? `<div class="meta-block">
-      <div class="meta-label">Description</div>
-      <div class="meta-value">${escapeHtml(p.description)}</div>
+    ${p.judul ? `<div class="meta-block">
+      <div class="meta-label">Judul</div>
+      <div class="meta-value">${escapeHtml(p.judul)}</div>
+    </div>` : ''}
+
+    ${p.catatan ? `<div class="meta-block">
+      <div class="meta-label">Catatan</div>
+      <div class="meta-value">${escapeHtml(p.catatan)}</div>
+    </div>` : ''}
+
+    ${p.sumber_data ? `<div class="meta-block">
+      <div class="meta-label">Sumber Data</div>
+      <div class="meta-value">${escapeHtml(p.sumber_data)}</div>
     </div>` : ''}
 
     <div class="meta-block">
       <div class="meta-label">ID</div>
       <div class="meta-value">${escapeHtml(p._uid || '—')}</div>
-    </div>
-    
-    <div class="meta-block">
-      <div class="meta-label">Geometry</div>
-      <div class="meta-value">${feature.geometry ? feature.geometry.type : 'none'}</div>
-    </div>
-    
-    <div class="meta-block">
-      <div class="meta-label">Source file</div>
-      <div class="meta-value">${escapeHtml(p._sourceFile || '—')}</div>
     </div>
   `;
 
