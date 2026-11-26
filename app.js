@@ -99,7 +99,7 @@ fetch('data/index.json')
   });
 
 // ============================================================
-//  Interaction: select a feature (UPDATED)
+//  Interaction: select a feature
 // ============================================================
 function selectFeature(feature, layer) {
   if (selectedLayer && selectedLayer.setStyle) {
@@ -113,7 +113,7 @@ function selectFeature(feature, layer) {
   const panel = document.getElementById('info-panel');
   if (!details) return;
 
-    // Build the HTML for the panel
+  // Build the HTML for the panel
   details.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
       <h3 style="margin: 0; font-size: 16px; color: #333;">${escapeHtml(p.title || 'Area Details')}</h3>
@@ -139,6 +139,16 @@ function selectFeature(feature, layer) {
       <div class="meta-label">ID</div>
       <div class="meta-value">${escapeHtml(p._uid || '—')}</div>
     </div>
+    
+    <div class="meta-block">
+      <div class="meta-label">Geometry</div>
+      <div class="meta-value">${feature.geometry ? feature.geometry.type : 'none'}</div>
+    </div>
+    
+    <div class="meta-block">
+      <div class="meta-label">Source file</div>
+      <div class="meta-value">${escapeHtml(p._sourceFile || '—')}</div>
+    </div>
   `;
 
   // Open the panel
@@ -153,7 +163,7 @@ function selectFeature(feature, layer) {
 }
 
 // ============================================================
-//  Render the searchable list in the side panel (UPDATED)
+//  Render the searchable list in the side panel
 // ============================================================
 function renderList(filterText = '') {
   const results = document.getElementById('results');
@@ -163,7 +173,8 @@ function renderList(filterText = '') {
   const matches = allFeatures.filter(f => {
     if (!q) return true;
     const p = f.properties || {};
-    return [p._uid, p.title, p._sourceFile]
+    // Added the new fields to the search filter
+    return [p._uid, p.title, p.judul, p.catatan, p.sumber_data]
       .filter(Boolean)
       .some(v => String(v).toLowerCase().includes(q));
   });
@@ -171,7 +182,7 @@ function renderList(filterText = '') {
   results.innerHTML = matches
     .map(f => {
       const p = f.properties || {};
-      const label = p.title || p._uid;
+      const label = p.title || p.judul || p._uid;
       return `<div class="result-item" data-uid="${escapeHtml(p._uid)}">${escapeHtml(label)}</div>`;
     })
     .join('');
