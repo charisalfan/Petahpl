@@ -5,6 +5,7 @@ let map;
 let geojsonLayer;
 let allFeatures = [];
 let selectedLayer = null;
+let manifestFilesCache = [];
 
 // ============================================================
 //  Init map
@@ -25,23 +26,40 @@ fetch('data/index.json')
     return res.json();
   })
   .then(manifest => {
-    const urls = manifest.files || [];
-    return Promise.all(
-      urls.map(url =>
-        fetch(url).then(res => {
-          if (!res.ok) throw new Error(url + ' -> HTTP ' + res.status);
-          return res.json();
-        })
+    manifestFilesCache = manifest.files || [];
+    // allSettled so one missing file doesn't blank the whole map
+    return Promise.allSettled(
+      manifestFilesCache.map((url, idx) =>
+        fetch(url)
+          .then(res => {
+            if (!res.ok) throw new Error(url + ' -> HTTP ' + res.status);
+            return res.json();
+          })
+          .then(data => ({ idx, url, data }))
+          .catch(err => ({ idx, url, error: err }))
       )
     );
   })
-  .then(collections => {
+  .then(results => {
+    const collections = [];
+    results.forEach(r => {
+      if (r.status === 'fulfilled' && !r.value.error) {
+        collections.push(r.value.data);
+      } else {
+        const err = r.status === 'fulfilled' ? r.value.error : r.reason;
+        console.warn('Skipping file:', err && err.message ? err.message : err);
+      }
+    });
+
+    if (collections.length === 0) {
+      throw new Error('No GeoJSON files could be loaded. Check data/index.json and the files it references.');
+    }
+
     allFeatures = collections.flatMap((data, fileIdx) =>
       (data.features || []).map((f, i) => {
         f.properties = f.properties || {};
         f.properties._uid = f.properties.id || `f${fileIdx}-${i}`;
-        // Keep a link back to the source file, useful for debugging
-        f.properties._sourceFile = (manifestFilesCache[fileIdx] || '');
+        f.properties._sourceFile = manifestFilesCache[fileIdx] || '';
         return f;
       })
     );
@@ -62,7 +80,6 @@ fetch('data/index.json')
 
     renderList();
 
-    // Debug summary in console
     console.log(`Loaded ${allFeatures.length} features from ${collections.length} file(s).`);
     if (geojsonLayer.getBounds().isValid()) {
       console.log('Bounds:', geojsonLayer.getBounds());
@@ -76,13 +93,10 @@ fetch('data/index.json')
     if (details) {
       details.innerHTML =
         '<p class="placeholder">⚠️ Error loading data: ' +
-        err.message +
+        escapeHtml(err.message) +
         '</p>';
     }
   });
-
-// Small cache so we can tag features with their source file
-let manifestFilesCache = [];
 
 // ============================================================
 //  Interaction: select a feature
@@ -142,7 +156,6 @@ function renderList(filterText = '') {
     })
     .join('');
 
-  // Click on a list item → zoom + select its layer
   results.querySelectorAll('.result-item').forEach(el => {
     el.addEventListener('click', () => {
       const uid = el.getAttribute('data-uid');
