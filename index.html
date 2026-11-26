@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peta HPL Transmigrasi</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <div id="map"></div>
+    <aside id="info-panel" class="panel">
+      <div class="panel-header">
+        <input id="search" type="search" placeholder="Search map title, area, or ID..." />
+        <div id="results" class="results"></div>
+      </div>
+      <div id="details" class="details">
+        <p class="placeholder">Klik pada wilayah untuk melihat detil.</p>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
